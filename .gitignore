@@ -8,3 +8,6 @@ artifacts/
 .signing/
 *.jks
 *.keystore
+
+__pycache__/
+*.pyc
