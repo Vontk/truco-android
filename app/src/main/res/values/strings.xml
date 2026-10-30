@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Truco</string>
+    <string name="brand">truco</string>
+    <string name="us">Nosotros</string>
+    <string name="them">Ellos</string>
+    <string name="new_game">Nuevo partido</string>
+    <string name="reset_title">¿Nuevo partido?</string>
+    <string name="reset_message">Los puntos de ambos equipos volverán a cero. Esta acción no se puede deshacer.</string>
+    <string name="cancel">Cancelar</string>
+    <string name="confirm">Empezar de nuevo</string>
+    <string name="subtract">Restar un punto</string>
+    <string name="add">Sumar un punto</string>
+    <string name="points">%1$d puntos</string>
+    <string name="team_points">%1$s: %2$d puntos</string>
+    <string name="save_error">No se pudo guardar el marcador. Volvé a intentarlo.</string>
+</resources>

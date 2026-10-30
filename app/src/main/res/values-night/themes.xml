@@ -1,0 +1,10 @@
+<resources>
+    <style name="Theme.Truco" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowActionModeOverlay">false</item>
+        <item name="android:windowBackground">#121212</item>
+        <item name="android:colorAccent">#646464</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+    </style>
+</resources>
