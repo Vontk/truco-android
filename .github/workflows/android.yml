@@ -36,6 +36,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.prepare.outputs.sha }}
+          fetch-depth: 0
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -48,6 +49,12 @@ jobs:
       - run: sdkmanager 'platforms;android-37.2' 'build-tools;36.1.0'
       - name: Test, lint and compile
         run: ./gradlew testDebugUnitTest lint assembleDebug assembleRelease bundleRelease --stacktrace
+      - name: Export source history
+        run: git bundle create truco-source.bundle --all
+      - uses: actions/upload-artifact@v4
+        with:
+          name: truco-source
+          path: truco-source.bundle
       - uses: actions/upload-artifact@v4
         with:
           name: truco-build
@@ -67,6 +74,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.prepare.outputs.sha }}
+          fetch-depth: 0
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -88,9 +96,28 @@ jobs:
           target: google_apis
           arch: x86_64
           disable-animations: true
-          script: ./gradlew connectedDebugAndroidTest --stacktrace
+          script: |
+            ./gradlew connectedDebugAndroidTest --stacktrace
+            mkdir -p screenshots
+            adb shell am force-stop io.github.vontk.truco.debug
+            adb shell am start -n io.github.vontk.truco.debug/io.github.vontk.truco.MainActivity
+            sleep 2
+            adb exec-out screencap -p > screenshots/light.png
+            adb shell cmd uimode night yes
+            sleep 2
+            adb exec-out screencap -p > screenshots/dark.png
+            adb shell settings put system accelerometer_rotation 0
+            adb shell settings put system user_rotation 1
+            adb shell settings put system font_scale 1.5
+            sleep 2
+            adb exec-out screencap -p > screenshots/landscape-large-font.png
+            adb shell settings put system user_rotation 0
+            adb shell settings put system font_scale 1.0
+            adb shell cmd uimode night auto
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: device-tests-${{ matrix.api }}
-          path: app/build/reports/androidTests/
+          path: |
+            app/build/reports/androidTests/
+            screenshots/
