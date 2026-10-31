@@ -1,13 +1,19 @@
-# Verificación
+# Verificación de 1.0.0
 
-La compilación y las pruebas se ejecutan en GitHub Actions porque el entorno de edición tiene el acceso de red restringido y sólo dispone localmente de un SDK anterior sin Compose. No se considera una compilación local exitosa.
+[Build y pruebas verificadas](https://github.com/Vontk/truco-android/actions/runs/41147908677), commit `4957f62e5f33905f89c5f5ccc6605a9ceb65915f`.
 
-El workflow conserva reportes de pruebas, lint, APK debug, release optimizada, AAB y mapping de R8. Las pruebas instrumentadas están configuradas en API 26 y API 35. Una release publicada por el workflow requiere que todos esos trabajos finalicen correctamente y verifica la firma y alineación de su APK.
+- Compilación debug, release optimizada con R8 y AAB: correcta.
+- Cinco pruebas unitarias de ScoreTest: correctas; cubren los 31 marcadores, palitos, límites, equipos y cruce de fase.
+- Lint: sin errores; siete advertencias (dependencias más recientes, candidatos a plurales, extracción de datos, comprobación de SDK y detección del ícono monocromático entre recursos versionados).
+- Tres pruebas instrumentadas en API 26 y las mismas tres en API 35: correctas. Incluyen toques, límites, confirmación/cancelación, recreación de Activity y persistencia atómica de ambos equipos.
+- Capturas del emulador API 35: modo oscuro y horizontal con fuente al 150% revisados. La primera captura clara se tomó antes del primer frame; el workflow posterior aumenta la espera. No se afirma validación visual en teléfono físico.
+- APK release firmado localmente: esquemas v2 y v3 y alineación de 16 KB verificados. Tamaño aproximado: 1,1 MB. El APK debug tiene identificador separado y firma de depuración.
+- Sin permiso de Internet. AndroidX añade su permiso interno de receptores con protección por firma; no requiere autorización del usuario.
 
-Las pruebas de recreación verifican que la Activity relea el estado, y otra instancia de ScoreStore verifica el estado persistido. No equivalen a cortar la energía durante una escritura ni a probar cada fabricante de Android. DataStore serializa las transacciones; la interfaz sólo muestra el estado persistido.
+Certificado release SHA-256:
 
-No se afirma validación visual en un teléfono físico. El código evita imágenes del sistema falsas y recursos rasterizados; se usan Canvas y vectores.
+`8737bf1bafa258f1b79c873880044c87b2577e0ade437cf25b366576bd938042`
 
-## Comprobación local del núcleo
+La compilación Android se ejecutó en GitHub Actions porque el entorno de edición no puede descargar SDK/dependencias. Los APK se recuperaron mediante el conector de GitHub y se verificaron localmente. La ejecución aislada local de las cinco pruebas del núcleo también pasó con JDK 21, Kotlin 2.3.20 y JUnit 4.13.2.
 
-Las cinco pruebas de `ScoreTest` se compilaron y ejecutaron con JDK 21, Kotlin 2.3.20 y JUnit 4.13.2 ya disponibles en caché: **OK (5 tests)**. Se prueban los 31 marcadores posibles, la distribución de palitos, ambos límites y equipos, el cruce de fase y entradas inválidas. Esta ejecución aislada del núcleo no verifica la compilación Android ni Compose.
+La recreación de Activity y otra instancia de ScoreStore verifican la persistencia; no simulan un corte de energía durante una escritura. La UI sólo muestra el estado persistido y DataStore serializa las transacciones. Las actualizaciones necesitan conservar la clave original y aumentar versionCode.

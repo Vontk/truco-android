@@ -42,7 +42,13 @@ export TRUCO_KEY_PASSWORD="$TRUCO_STORE_PASSWORD"
 ./gradlew assembleRelease
 ```
 
-Para actualizar la app publicada se necesita **la misma clave original**. Su copia local está excluida de Git en `.signing/`; el secreto opcional `TRUCO_SIGNING_BUNDLE` permite firmar en Actions sin publicar credenciales (requiere configuración). También podés firmar un APK release sin firmar de Actions con `./scripts/sign-release.sh /ruta/app-release-unsigned.apk`. No generes otra clave para actualizar una instalación existente. Incrementá `versionCode` y `versionName`, actualizá las notas y publicá un tag `vX.Y.Z`: Actions ejecuta pruebas, lint y builds, y recién después publica los APK y checksums. Los pull requests nunca reciben la clave.
+Para actualizar la app publicada se necesita **la misma clave original**. La clave local y su contraseña están excluidas de Git en `.signing/`; conservá una copia privada de esa carpeta. Podés firmar el APK release sin firmar de Actions con:
+
+```sh
+bash scripts/sign-release.sh /ruta/app-release-unsigned.apk
+```
+
+Incrementá `versionCode` y `versionName` para la próxima actualización y repetí pruebas/build. Publicá `artifacts/truco-X.Y.Z.apk`, `SHA256SUMS` y `signature.txt` en una nueva release de GitHub con tag `vX.Y.Z` sobre el commit verificado. El APK debug es opcional y se excluye con el filtro de Obtainium. La firma se realiza localmente; las claves privadas no se suben al repositorio ni a los artefactos de Actions.
 
 ## Diseño y verificación
 
