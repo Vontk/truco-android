@@ -51,6 +51,21 @@ jobs:
         run: ./gradlew testDebugUnitTest lint assembleDebug assembleRelease bundleRelease --stacktrace
       - name: Export source history
         run: git bundle create truco-source.bundle --all
+      - name: Export verified delivery through the GitHub connector
+        run: |
+          python3 - <<'PY'
+          import base64, pathlib, tarfile
+          root = pathlib.Path('.')
+          with tarfile.open('/tmp/truco-delivery.tar.xz', 'w:xz') as archive:
+              for pattern in ['app/build/outputs/apk/**/*.apk', 'app/build/test-results/**/*.xml', 'app/build/reports/lint-results-debug.xml', 'truco-source.bundle']:
+                  for path in root.glob(pattern):
+                      archive.add(path, arcname=str(path))
+          data = base64.b64encode(pathlib.Path('/tmp/truco-delivery.tar.xz').read_bytes()).decode()
+          print('TRUCO_DELIVERY_BEGIN')
+          for offset in range(0, len(data), 8192):
+              print('TRUCO_DELIVERY_DATA ' + data[offset:offset + 8192])
+          print('TRUCO_DELIVERY_END')
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: truco-source
@@ -99,6 +114,7 @@ jobs:
           script: |
             ./gradlew connectedDebugAndroidTest --stacktrace
             mkdir -p screenshots
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb shell am force-stop io.github.vontk.truco.debug
             adb shell am start -n io.github.vontk.truco.debug/io.github.vontk.truco.MainActivity
             sleep 2
@@ -114,6 +130,15 @@ jobs:
             adb shell settings put system user_rotation 0
             adb shell settings put system font_scale 1.0
             adb shell cmd uimode night auto
+            echo TRUCO_LIGHT_BEGIN
+            base64 -w8192 screenshots/light.png
+            echo TRUCO_LIGHT_END
+            echo TRUCO_DARK_BEGIN
+            base64 -w8192 screenshots/dark.png
+            echo TRUCO_DARK_END
+            echo TRUCO_LANDSCAPE_BEGIN
+            base64 -w8192 screenshots/landscape-large-font.png
+            echo TRUCO_LANDSCAPE_END
       - uses: actions/upload-artifact@v4
         if: always()
         with:
